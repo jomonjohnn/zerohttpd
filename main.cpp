@@ -11,9 +11,15 @@
 
 int main(int argc, char** argv)
 {
+	int ret = EXIT_SUCCESS;
 
-    WebServer server(DEFAULT_SERVER_PORT);
-    server.Run();
+	try{
+		WebServer server(DEFAULT_SERVER_PORT);
+		server.Run();
+	}catch(std::exception& exp){
+		std::cerr << exp.what() << std::endl;
+		ret = EXIT_FAILURE;
+	}
 
-    return 0;
+	return ret;
 }

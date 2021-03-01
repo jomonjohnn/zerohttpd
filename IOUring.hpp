@@ -32,14 +32,13 @@ public:
 	}
 
 	int doAccept(int server_socket, struct sockaddr_in *client_addr,
-                       socklen_t *client_addr_len)
+					   socklen_t *client_addr_len)
 	{
 		struct io_uring_sqe *sqe = io_uring_get_sqe(&ring_m);
 		io_uring_prep_accept(sqe, server_socket, (struct sockaddr *) client_addr,
-		                     client_addr_len, 0);
+							 client_addr_len, 0);
 		struct request *req = static_cast<struct request *>(malloc(sizeof(*req)));
 		last_accept_req = req;
-		//req->event_type = EVENT_TYPE_ACCEPT;
 		req->event_type = EventType::Accept;
 		io_uring_sqe_set_data(sqe, req);
 		io_uring_submit(&ring_m);
@@ -64,7 +63,7 @@ public:
 
 	int doWrite(struct request *req)
 	{
-    	struct io_uring_sqe *sqe = io_uring_get_sqe(&ring_m);
+		struct io_uring_sqe *sqe = io_uring_get_sqe(&ring_m);
 		req->event_type = EventType::Write;
 		io_uring_prep_writev(sqe, req->client_socket, req->iov, req->iovec_count, 0);
 		io_uring_sqe_set_data(sqe, req);
@@ -74,7 +73,7 @@ public:
 
 	int doWait(struct io_uring_cqe** cqe)
 	{
-	    int ret = io_uring_wait_cqe(&ring_m, cqe);
+		int ret = io_uring_wait_cqe(&ring_m, cqe);
 		if (ret < 0){
 			Utility::FatalError("io_uring_wait_cqe");
 		}
@@ -83,8 +82,8 @@ public:
 
 	void markSeen(struct io_uring_cqe* cqe)
 	{
-	    /* Mark this request as processed */
-	    io_uring_cqe_seen(&ring_m, cqe);
+		/* Mark this request as processed */
+		io_uring_cqe_seen(&ring_m, cqe);
 	}
 
 	void doStop(void)
@@ -94,13 +93,13 @@ public:
 
 	void setupSignalHandling(int epfd)
 	{
-	    struct io_uring_sqe *sqe = io_uring_get_sqe(&ring_m);
-	    io_uring_prep_poll_add(sqe, epfd, POLLIN);
+		struct io_uring_sqe *sqe = io_uring_get_sqe(&ring_m);
+		io_uring_prep_poll_add(sqe, epfd, POLLIN);
 
 		struct request *req = static_cast<struct request *>(malloc(sizeof(*req)));
 		req->event_type = EventType::Quit;
 		io_uring_sqe_set_data(sqe, req);
-	    io_uring_submit(&ring_m);
+		io_uring_submit(&ring_m);
 	}
 
 private:
